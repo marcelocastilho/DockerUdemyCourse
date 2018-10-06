@@ -1,0 +1,154 @@
+Docker
+	É um conceito de empacotamento de instalações composto por containeres e pacotes.
+	Veio para simplificar a vida de quem mantem a infraestrutura das aplicações.
+	Pode ser trabalhado em visão micro(somente um pequeno pacote com uma biblioteca) ou macro(todo ambiente de infra SO/SDK/Bibliotecas)
+
+Docker client
+	Ferramenta para gerenciar o docker, receber comandos e executa-los
+	
+Docker Server
+	Ferramenta para criar imagens, rodar containeres, manter estruturas.
+	
+Docker hub
+	É um repositorio gratis de imagens
+	
+Container
+	Uma instancia de uma imagem 
+	
+Image
+	É o menor pacote possivel para se rodar um programa específico.
+	Pode ser utilizada por vários containeres
+
+Instalando docker no Ubuntu
+
+Atualizar a lista de programas do Linux
+	sudo apt update
+
+Instalar o curl(cURL is a tool to transfer data from or to a server, using one of the supported protocols (DICT, FILE, FTP, FTPS, GOPHER, HTTP, HTTPS, IMAP, IMAPS, LDAP, LDAPS, POP3, POP3S, RTMP, RTSP, SCP, SFTP, SMB, SMBS, SMTP, SMTPS, TELNET and TFTP). The command is designed to work without user interaction.)
+	sudo apt install curl
+
+Baixar e installar o docker
+	curl -sSl https://get.docker.com | sudo -E sh
+
+Instalar o docker-compose
+	sudo apt install docker-compose
+
+Instalar o node.js e o npm
+	sudo apt install nodejs
+	sudo apt install npm
+	
+Dar permissão para o usuario do docker
+	sudo usermod -aG docker osboxes
+	
+########## Copiar imagens e criar containeres ###########
+
+Criar e roda um container a partir da imagem "hello-world"
+	
+	docker create <hello-world>
+	docker start <container id>
+	
+	docker run hello-world
+	Sintaxe:
+		docker: Reference to a docker client
+		run: comando para criar e rodar um container
+		-d: rodar em background
+		<nome da imagem > 
+		default command or another one 
+
+Rodar um container em background(sem logs na tela e continua rodando)
+	docker run -d redis
+
+
+Para iniciar um container
+	Recuperar o id do container atraves do comando "docker ps --all" e ai rodar através do comando "docker start -a <id do container>"
+
+Ver todos os containeres rodando
+	docker ps
+	
+Ver o historico de criação de containeres
+	docker ps --all
+
+Apagar o cash de containers, aqueles que não estão sendo usados
+	docker system prune
+	
+Parar um container (Aguarda até 10 segundos para o proprio container para senão usa o comando kill automaticamente)
+	docker stop <id do container>
+	
+Matar um container rodando. Não apaga! Somente para o container na hora.
+	docker kill <id do container>
+	
+Rodar um segundo comando dentro de um container(podendo colocar um outro programa dentro do container)
+	docker exec -it <container id>  <comando a ser executado>
+	*-it (permite que sejam executados comandos no container)
+	
+Rodar um SH em um container rodando
+	docker exec -it <docker id> sh
+		
+DOCKER FILE
+
+	Estrutura:
+		FROM: get a basic image
+		WORKDIR: specify a workdir that will be the initial file system path
+		COPY: copy files to the image that will be created
+		TUN: execute commands inside a basic image
+		CMD: when the container starts it will play this command
+	
+
+	Criar uma imagem
+		docker build .(a pasta atual)
+
+	Criar uma imagem e dar um nome para ela
+		docker build -t marcelo/redis:latest .
+	
+		marcelo: docker id
+		redis: project name
+		latest: versão
+	
+	Alterar um container inserindo mais programas e gerando uma nova imagem
+		docker commit -c 'CMD["redis-server"]'
+
+	Rodar um docker file espeficificando portas de comunicacao entre o SO e o container
+		docker run -p 8080:8080 <image name>
+
+DOCKER COMPOSE
+	Compose is a tool for defining and running multi-container Docker applications. 
+	... Define the services that make up your app in docker-compose.yml so they can be run 	
+	together in an isolated environment. Run docker-compose up and Compose starts and runs your entire app.
+	Estrutura:
+		version: '3' --> versão do docker compose a ser utilizado
+		services: --> especifica as imagens a serem utilizadas
+			redis-server: --> nome dado a um elemento a ser criado no container
+			 image: 'redis' --> imagem a ser utilizada como base
+			node-app: --> nome dado a um elemento a ser criado no container
+			 build: . --> comando a ser executado 
+			 ports: --> especificação de portas a serem utilizadas.
+			   - 4001:8081"
+		
+	Rodar a composição:
+		docker-compose up
+
+	Rodar a composição refazendo o pacote:
+		docker-compose up --build
+
+	Parar uma composição
+		docker-compose down
+
+RESTART POLICIES
+	Opçoes
+	no --> Nevert attempt to restart this . container if ti stops or chashes.
+	always --> If the container stop *forn any reason always attempt to restart it
+	on-failure --> Only restart the container if an Error code has been returned
+	unless-stopped --> Always restart unless we(the developers) forcibly stop it
+
+
+Obs.:
+
+Sempre que quiser buscar uma imagem mais pura(atomica) usar a versao alpine. Ex.: node:alpine 
+
+Para fazer com que containers se comuniquem ha duas maneiras: 
+	1 - Use docker CLI`s Network features. Complicado de se configurar
+	2 - Use a docker compose
+
+
+
+
